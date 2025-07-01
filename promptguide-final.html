@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PromptGuide+</title>
+  <style>
+    :root {
+      --bg: rgba(255, 255, 255, 0.1);
+      --fg: rgba(255, 255, 255, 0.6);
+      --accent: #00d4ff;
+      --radius: 12px;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #1a1a1a, #2a2a2a);
+      color: #fff;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.6rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: white;
+      backdrop-filter: blur(8px);
+    }
+    .prompt-card {
+      background: var(--bg);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin: 0.5rem 0;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    .prompt-card h3 {
+      margin: 0 0 0.5rem;
+      color: var(--accent);
+    }
+    .prompt-card button {
+      background: var(--accent);
+      border: none;
+      padding: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: black;
+      font-weight: bold;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #00ffae;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>✨ PromptGuide+</h1>
+  <input type="text" id="search" placeholder="Search prompts..." />
+  <select id="categoryFilter">
+    <option value="">All Categories</option>
+  </select>
+  <div id="promptList"></div>
+  <div class="toast" id="toast">Copied!</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+  <script>
+    const prompts = []; // We'll load this below dynamically
+    const allCategories = new Set();
+
+    async function loadPrompts() {
+      const res = await fetch("https://chat.openai.com/_next/static/chunks/prompts40.js"); // placeholder
+      const data = await res.json(); // fake loading
+    }
+
+    
+const prompts = [
+  { title: "Professional Email Reply", category: "Email", prompt: "Write a polite and professional reply to an email declining a meeting, suggesting an alternative time.", example_output: "Thank you for your message. I understand your schedule and would be happy to meet next week instead..." },
+  { title: "Summarize a Long Article", category: "Analysis", prompt: "Summarize the following article in 3 bullet points using simple language.", example_output: "• Covers the benefits of meditation...\n• Describes a new research study...\n• Concludes with daily tips." },
+  { title: "Generate Blog Titles", category: "Writing", prompt: "Generate 10 engaging blog post titles about [your topic].", example_output: "1. 7 Surprising Ways to Improve Focus\n2. The Science Behind Productivity..." },
+  { title: "Rewrite for Clarity", category: "Editing", prompt: "Rewrite the following paragraph to make it clearer and more concise.", example_output: "Before: The main reason why we should... → After: We should... because..." },
+  { title: "Brainstorm Startup Ideas", category: "Creative", prompt: "Brainstorm 5 startup ideas based on recent changes in [industry or technology].", example_output: "1. AI-powered legal assistant for freelancers...\n2. Subscription box for climate-friendly snacks..." },
+  { title: "Customer Objection Handling", category: "Sales", prompt: "How can I handle the objection: 'This is too expensive' in a customer conversation?", example_output: "Acknowledge the concern, emphasize ROI, offer a payment plan..." },
+  { title: "User Feedback Summary", category: "Analysis", prompt: "Summarize the key insights from this user feedback data.", example_output: "• Users love speed, dislike mobile UI\n• Common feature request: dark mode" },
+  { title: "Improve LinkedIn Bio", category: "Personal Branding", prompt: "Improve this LinkedIn bio to make it more impactful and results-driven.", example_output: "Original: 'Experienced sales rep' → Improved: 'Sales leader who grew revenue 3x in 12 months...' " },
+  { title: "Explain Like I'm 5", category: "Teaching", prompt: "Explain [concept] in simple terms for a 5-year-old.", example_output: "The cloud is like a giant computer you can use without owning it." },
+  { title: "Pitch in One Sentence", category: "Startup", prompt: "Write a clear one-sentence pitch for this startup idea: [idea]", example_output: "A mobile app that helps freelancers get paid faster through smart invoicing." },
+  { title: "Summarize Meeting Notes", category: "Work", prompt: "Summarize these meeting notes into key decisions, action items, and blockers.", example_output: "• Decision: Launch on Monday\n• Action: Finalize copy by Friday\n• Blocker: Missing assets" },
+  { title: "Create a Landing Page Headline", category: "Marketing", prompt: "Write 5 high-converting landing page headlines for a product that [describe product].", example_output: "1. Stop Wasting Time — Automate Your Workflow\n2. Smarter Tools for Growing Teams" },
+  { title: "Turn Bullet Points into Paragraph", category: "Writing", prompt: "Convert these bullet points into a well-written paragraph for a report.", example_output: "After reviewing Q2 sales data, we noted a 15% increase in... which we attribute to..." },
+  { title: "Clarify Job Description", category: "HR", prompt: "Rewrite this job description to be more clear, engaging, and inclusive.", example_output: "We're looking for a UX Designer who values collaboration, rapid prototyping, and inclusive design." },
+  { title: "Compare Pros and Cons", category: "Decision-Making", prompt: "Create a pros and cons list for choosing between [Option A] and [Option B].", example_output: "Remote work: Pros – flexibility, fewer distractions | Cons – isolation, time zones" },
+  { title: "Translate to Friendly Tone", category: "Editing", prompt: "Translate this formal message into a friendly and casual tone.", example_output: "Original: 'We regret to inform you...' → Friendly: 'Hey there — just a heads-up that...'" },
+  { title: "Daily Productivity Plan", category: "Productivity", prompt: "Create a simple productivity plan for my day with 3 key priorities and time blocks.", example_output: "• 9–11am: Deep work (project X)\n• 11–12: Emails\n• 1–3pm: Team sync + reviews" },
+  { title: "Turn Outline into Script", category: "Content", prompt: "Turn this video outline into a casual YouTube script.", example_output: "Hey friends! In today’s video, we’re diving into 3 underrated AI tools that..." },
+  { title: "Design Interview Questions", category: "HR", prompt: "Write 5 behavioral interview questions for a product manager role.", example_output: "Tell me about a time when you had to prioritize conflicting feedback..." },
+  { title: "Find the Core Insight", category: "Analysis", prompt: "What is the most important takeaway from this paragraph?", example_output: "The new policy increases customer churn due to longer wait times." }
+];
+
+  </script>
+</body>
+</html>
